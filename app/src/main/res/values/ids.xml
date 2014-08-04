@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Ids use for text labels that are not yet on screen -->
+    <item name="inputText" type="id"></item>
+    <item name="outputText" type="id"></item>
+    <item name="distText" type="id"></item>
+
+    <!-- Ids used for circleViews that are not yet on screen -->
+    <item name="circleView1" type="id"></item>
+    <item name="circleView2" type="id"></item>
+</resources>

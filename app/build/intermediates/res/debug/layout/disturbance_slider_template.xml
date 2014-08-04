@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SeekBar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/disturbanceSlider"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/inputSlider"
+        android:layout_marginRight="33dp"
+        android:max="20000"
+        android:minWidth="200dp"
+        android:progress="10000" /><!-- From: file:/Users/Ollie/Android-Dev/Feedback/app/src/main/res/layout/disturbance_slider_template.xml -->

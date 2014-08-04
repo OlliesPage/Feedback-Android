@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="test_array">
+        <item>One</item>
+        <item>Two</item>
+        <item>Three</item>
+    </array>
+</resources>

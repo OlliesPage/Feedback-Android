@@ -1,0 +1,24 @@
+{
+    "name": "basic",
+    "model": [
+        {
+            "controller": {
+                "block": 11
+            }
+        },
+        {
+            "device": {
+                "block": 9
+            }
+        },
+        [
+            {
+                "sensor": {
+                    "block": -0.2
+                }
+            }
+        ]
+    ],
+    "hasDisturbance": true,
+    "description": "This is a model of a feedback system. By moving the sliders you can adjust the input I and the disturbance D. By tapping the block paramaters they also can be adjusted. The type of feedback system being modelled is shown below.\n\nThis app is designed to allows you to see how feedback can be used to modify input"
+}
