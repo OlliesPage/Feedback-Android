@@ -4,23 +4,40 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
 
 public class InputGraphView extends GraphView {
 	private Paint paintCan = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private TextPaint mTextPaint;
+    private String minInput;
+    private String maxInput;
+    private String minOutput;
+    private String maxOutput;
 
 	public InputGraphView(Context context) {
 		super(context);
+        initalize();
 	}
 
 	public InputGraphView(Context context, AttributeSet attrs) {
 		super(context, attrs);
+        initalize();
 	}
 
 	public InputGraphView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
+        initalize();
 	}
+
+    private void initalize()
+    {
+        mTextPaint = new TextPaint();
+        mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+        mTextPaint.setTextAlign(Paint.Align.LEFT);
+        mTextPaint.setTextSize(18);
+    }
 
 	private void drawLineOnCanvas(Canvas canvas, double max, double min, double limit) {
 		
@@ -60,23 +77,25 @@ public class InputGraphView extends GraphView {
 	        // this is for limits only - it draws the "tails" at the limiting values
 	    	canvas.drawLine(max<0?getWidth():0.f, minPoint[1], minPoint[0], minPoint[1], paintCan);
 	    	canvas.drawLine(maxPoint[0], maxPoint[1], max<0?0.f:getWidth(), maxPoint[1], paintCan);
-	    }
-//	    [self.minInput setFrame:CGRectMake(minPoint.x, (center.y-21), 100, 21)];
-//	    [self.maxInput setFrame:CGRectMake((maxPoint.x-25), (center.y-21), 25, 21)];
-//	    [self.minOutput setFrame:CGRectMake(center.x+2, (minPoint.y-10), 50, 21)];
-//	    [self.maxOutput setFrame:CGRectMake(center.x+2, (maxPoint.y-10), 50, 21)];
-//	    if(limit!=0)
-//	    {
-//	        self.minInput.text = [NSString stringWithFormat:@"%.1f", min]; self.minInput.backgroundColor = [UIColor clearColor];
-//	        self.maxInput.text = [NSString stringWithFormat:@"%.1f", max]; self.maxInput.backgroundColor = [UIColor clearColor]; self.maxInput.textAlignment = NSTextAlignmentRight;
-//	        self.minOutput.text = [NSString stringWithFormat:@"%.1f",-1*limit]; self.minOutput.backgroundColor = [UIColor clearColor];
-//	        self.maxOutput.text = [NSString stringWithFormat:@"%.1f",limit]; self.maxOutput.backgroundColor = [UIColor clearColor];
-//	    } else {
-//	        self.minInput.text = @"-10"; self.minInput.backgroundColor = [UIColor clearColor];
-//	        self.maxInput.text = @"10"; self.maxInput.backgroundColor = [UIColor clearColor]; self.maxInput.textAlignment = NSTextAlignmentRight;
-//	        self.minOutput.text = [NSString stringWithFormat:@"%.1f",min]; self.minOutput.backgroundColor = [UIColor clearColor];
-//	        self.maxOutput.text = [NSString stringWithFormat:@"%.1f",max]; self.maxOutput.backgroundColor = [UIColor clearColor];
-//	    }
+
+            // Set the value for the labels
+            minInput = new String().format("%.1f", min);
+            maxInput = new String().format("%.1f", max);
+            minOutput = new String().format("%.1f", -1*limit);
+            maxOutput = new String().format("%.1f", limit);
+	    } else {
+            // Set the value for the labels
+            minInput = "-10.0";
+            maxInput = "10.0";
+            minOutput = new String().format("%.1f", min);
+            maxOutput = new String().format("%.1f", max);
+        }
+        float maxInputTextWidth = mTextPaint.measureText(maxInput);
+        canvas.drawText(minInput, minPoint[0], center[1]-21, mTextPaint);
+        canvas.drawText(maxInput, maxPoint[0]-maxInputTextWidth, center[1]-21, mTextPaint);
+
+        canvas.drawText(minOutput, center[0]+2, minPoint[1]-10, mTextPaint);
+        canvas.drawText(maxOutput, center[0]+2, maxPoint[1]-10, mTextPaint);
 	}
 	
 	public void onDraw(Canvas canvas) {

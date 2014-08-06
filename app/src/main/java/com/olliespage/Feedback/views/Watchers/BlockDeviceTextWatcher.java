@@ -24,9 +24,13 @@ public class BlockDeviceTextWatcher implements TextWatcher {
 		String text = s.toString();
 		if(text != null && text.length() != 0 && !text.equals("-"))
 		{
-			Log.v(device.getName(), "s is: " +Double.parseDouble(s.toString())); // nice and simple
-			// tell my delegate to do something about this
-			delegate.newValueForBlockDevice(device, Double.parseDouble(s.toString()));
+            try {
+                Log.v(device.getName(), "s is: " + Double.parseDouble(s.toString())); // nice and simple
+                // tell my delegate to do something about this
+                delegate.newValueForBlockDevice(device, Double.parseDouble(s.toString()));
+            } catch(NumberFormatException e){
+                // not a double, do nothing but don't crash
+            }
 		}
 	}
 
