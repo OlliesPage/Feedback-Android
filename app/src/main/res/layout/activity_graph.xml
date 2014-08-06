@@ -36,5 +36,62 @@
 	    android:layout_marginTop="14dp"
 	    android:onClick="returnButtonClicked"
 	    android:text="@string/returnButton" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/disturbGraphLabel"
+        android:layout_alignLeft="@+id/inputGraph"
+        android:layout_alignRight="@+id/inputGraph"
+        android:gravity="center"
+        android:text="@string/graphLabelOutput" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/inputGraph"
+        android:layout_alignTop="@+id/inputGraph"
+        android:layout_alignBottom="@+id/inputGraph"
+        android:layout_marginLeft="5dp"
+        android:gravity="center"
+        android:text="@string/graphLabelInput" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/inputGraph"
+        android:layout_alignLeft="@+id/inputGraph"
+        android:layout_alignRight="@+id/inputGraph"
+        android:gravity="center"
+        android:text="@string/inputGraphLabel" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/outputGraph"
+        android:layout_alignLeft="@+id/outputGraph"
+        android:layout_alignRight="@+id/outputGraph"
+        android:gravity="center"
+        android:text="@string/graphLabelOutput" />
+
+    <TextView
+        android:id="@+id/disturbGraphLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/outputGraph"
+        android:layout_alignBottom="@+id/outputGraph"
+        android:layout_marginRight="25dp"
+        android:gravity="center"
+        android:text="@string/graphLabelDisturb" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/outputGraph"
+        android:layout_alignLeft="@+id/outputGraph"
+        android:layout_alignRight="@+id/outputGraph"
+        android:gravity="center"
+        android:text="@string/outputGraphLabel" />
     
 </RelativeLayout>

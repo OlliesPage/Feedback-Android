@@ -1,6 +1,5 @@
 package com.olliespage.Feedback;
 
-import android.widget.EditText;
 import java.io.Serializable;
 
 /**
@@ -17,15 +16,17 @@ public class BlockDevice implements Serializable {
 	/**
 	 *  Defines the type of block<br>
 	 *  0 - regular block<br>
-	 *  1 - limiting block
+	 *  1 - limiting block<br>
+     *  2 - FeedbackModelBlockDevice
 	 */
 	public int type;
 	public int level = 0; // default level is zero
-	public EditText onScreenView;
-	
-	public BlockDevice() {
-		this.type = 0;
-	}
+
+    public BlockDevice(String name)
+    {
+        this.name = name;
+        this.type = 0;
+    }
 	
 	public BlockDevice(String name, String value) {
 		this.name = name; this.value=value; this.type = 0;

@@ -23,7 +23,7 @@ public class JSONFeedbackModel {
 		String jsonData = loadJSONAssetAsString(context,assetName+".json");
 		try {
 			JSONObject jsonDict = new JSONObject(jsonData);
-			parseModel(jsonDict.getJSONArray("model"), systemModel, 0 );
+			parseModel(jsonDict.getJSONArray("model"), systemModel, 0, false);
 			hasDisturbance = jsonDict.optBoolean("hasDisturbance");
 			modelName = jsonDict.optString("name", "Unknown Model");
 			modelDescription = jsonDict.optString("description");
@@ -33,41 +33,56 @@ public class JSONFeedbackModel {
 		}
 	}
 
-	private void parseModelObject(JSONObject object, FeedbackModel systemModel, int level) {
+	private void parseModelObject(JSONObject object, FeedbackModel systemModel, int level, boolean subModel) {
 		if(maxLevel < level) maxLevel = level;
-		if(blockDevices.size() < level+1) blockDevices.add(new ArrayList<BlockDevice>());
+		if(blockDevices.size() < level+1 && !subModel) blockDevices.add(new ArrayList<BlockDevice>());
 		Iterator<String> itr = object.keys();
 		while(itr.hasNext()) {
 			String name = itr.next();
-			JSONObject block = object.optJSONObject(name);
-			if(block.has("block")) {
-				BlockDevice newDevice = new BlockDevice(name, block.optString("block"), level);
-				systemModel.addBlockDevice(newDevice, level);
-				blockDevices.get(level).add(newDevice);
-				Log.v("parseMO", name+" is a block with value: "+ block.optDouble("block"));
-			} else if(block.has("limitBlock")) {
-                // add the limit to the model and shiz
-                BlockDevice newDevice = new BlockDevice(name, block.optString("limitBlock"), level, 1);
-                systemModel.setLimitValue(newDevice.getDoubleValue());
-                blockDevices.get(level).add(newDevice);
-                Log.v("parseMO", name+" is a limit block with value: "+ block.optDouble("limitBlock"));
+            Log.v("parseMO", "Block is: "+name);
+            if(name.equals("model"))
+            {
+                // here we have an entire sub-model that must be parsed using parseModel
+                FeedbackModel newModel = new FeedbackModel();
+                parseModel(object.optJSONArray(name), newModel, 0, true);
+                FeedbackModelBlockDevice newDevice = new FeedbackModelBlockDevice(name, newModel);
+                systemModel.addBlockDevice(newDevice, level);
+                if(!subModel)
+                    blockDevices.get(level).add(newDevice);
+                return;
+            } else {
+                JSONObject block = object.optJSONObject(name);
+                if (block.has("block")) {
+                    BlockDevice newDevice = new BlockDevice(name, block.optString("block"), level);
+                    systemModel.addBlockDevice(newDevice, level);
+                    if(!subModel)
+                        blockDevices.get(level).add(newDevice);
+                    Log.v("parseMO", name + " is a block with value: " + block.optDouble("block"));
+                } else if (block.has("limitBlock")) {
+                    // add the limit to the model and shiz
+                    BlockDevice newDevice = new BlockDevice(name, block.optString("limitBlock"), level, 1);
+                    systemModel.setLimitValue(newDevice.getDoubleValue());
+                    if(!subModel)
+                        blockDevices.get(level).add(newDevice);
+                    Log.v("parseMO", name + " is a limit block with value: " + block.optDouble("limitBlock"));
+                }
             }
 		} // systemModel.limit resets after the while loop is left.
-		Log.e("parseMO", "object is of length "+object.length());
+		Log.v("parseMO", "object is of length "+object.length());
 	}
 	
-	private void parseModel(JSONArray jsonModel, FeedbackModel systemModel, int level) {
+	private void parseModel(JSONArray jsonModel, FeedbackModel systemModel, int level, boolean subModel) {
 		Log.v("JSON", "the length is: "+ jsonModel.length());
 		for(int i=0; i < jsonModel.length(); i++) {
 			if(jsonModel.optJSONObject(i) != null)
 			{
 				JSONObject element = jsonModel.optJSONObject(i);
-				parseModelObject(element, systemModel, level); // pass responsibility on
+				parseModelObject(element, systemModel, level, subModel); // pass responsibility on
 			} else if(jsonModel.optJSONArray(i) != null)
 			{
 				JSONArray element = jsonModel.optJSONArray(i);
 				// hehe, couldn't do this before, but I'm totally going to
-				parseModel(element, systemModel, level+1); // send it back through itself
+				parseModel(element, systemModel, level+1, subModel); // send it back through itself
 				// RECURSION RECURSES
 			}
 		}

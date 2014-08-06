@@ -1,6 +1,8 @@
 package com.olliespage.Feedback.views;
 
+import com.olliespage.Feedback.BlockDevice;
 import com.olliespage.Feedback.R;
+import com.olliespage.Feedback.views.Watchers.BlockDeviceTextWatcher;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -9,21 +11,29 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
 /**
  * TODO: document your custom view class.
  */
-public class LimitView extends View {
-    private EditText textBox;
+public class LimitView extends View implements BlockDeviceTextWatcher.BlockDeviceChangedInterface {
+    public LimitViewInterface delegate;
+    public EditText textBox;
+
     private String text;
     private boolean limiting;
+    private BlockDevice mDevice;
 
     private TextPaint mTextPaint;
     private Paint paintCan;
     private float mTextWidth;
     private float mTextHeight;
+
+    public interface LimitViewInterface {
+        public void limitBlockValueChanged(BlockDevice device, double value);
+    }
 
     public LimitView(Context context) {
         super(context);
@@ -63,8 +73,8 @@ public class LimitView extends View {
         paintCan.setStrokeWidth(2);
         paintCan.setStyle(Paint.Style.STROKE);
 
-        textBox = new EditText(getContext());
-        textBox.setText(text);
+        textBox = (EditText)LayoutInflater.from(getContext()).inflate(R.layout.block_template, null);
+        textBox.setFocusableInTouchMode(true);
     }
 
     private void invalidateTextPaintAndMeasurements() {
@@ -81,8 +91,7 @@ public class LimitView extends View {
         super.onDraw(canvas);
 
         float h = getHeight(); float w = getWidth();
-        float center[] = new float[2];
-        center[0] = w/2; center[1] = h/2;
+        float center[] = {w/2, h/2};
 
         // set the Dulux paint can to be the right colour, bought lovingly from B'n'Q
         if(limiting)
@@ -125,5 +134,19 @@ public class LimitView extends View {
     public void setLimiting(boolean isLimiting)
     {
         limiting = isLimiting;
+    }
+
+    public void setDevice(BlockDevice device)
+    {
+        mDevice = device;
+        textBox.addTextChangedListener(new BlockDeviceTextWatcher(mDevice, this));
+    }
+
+    @Override
+    public void newValueForBlockDevice(BlockDevice device, double value) {
+        text = textBox.getText().toString();
+        if(delegate != null)
+            delegate.limitBlockValueChanged(device, value);
+        this.setVisibility(View.VISIBLE);
     }
 }

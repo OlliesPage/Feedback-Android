@@ -2,15 +2,21 @@
 <resources>
 
     <string name="app_name">Feedback</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="GLES_graph_button">Show Sine Graphs</string>
-    <string name="Line_graph_button">Plot this on a Graph</string>
-    <string name="returnButton">&lt; Return</string>
     <string name="title_activity_graph">GraphActivity</string>
     <string name="title_activity_glesgraph">GLESGraphActivity</string>
+    <string name="title_activity_embeddedmodel">Embedded Feedback Model</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="returnButton">&lt; Return</string>
     <string name="select_sys_model">Select System Model</string>
-    <string name="title_item_list">Items</string>
-    <string name="title_item_detail">Item Detail</string>
+
+    <string name="GLES_graph_button">Show Sine Graphs</string>
+    <string name="Line_graph_button">Plot this on a Graph</string>
+    <string name="inputGraphLabel">Output v Input</string>
+    <string name="outputGraphLabel">Output v Disturbance</string>
+    <string name="graphLabelOutput">O</string>
+    <string name="graphLabelInput">I</string>
+    <string name="graphLabelDisturb">D</string>
 
 </resources>

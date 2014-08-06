@@ -31,6 +31,8 @@
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:layout_marginLeft="0dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:max="2000"
         android:onClick="inputSliderChanged"
         android:progress="1000"
@@ -65,9 +67,14 @@
         android:id="@+id/descripText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:maxHeight="110dp"
         android:layout_above="@+id/showGraphsButton"
         android:layout_alignLeft="@+id/showGraphsButton"
-        android:layout_toLeftOf="@+id/outputSlider" />
+        android:layout_toLeftOf="@+id/outputSlider"
+        android:scrollbars="vertical"
+        android:scrollbarStyle="insideOverlay"
+        android:fadeScrollbars="true"
+        android:fadingEdge="vertical"/>
 
     <TextView
         android:id="@+id/systemTypeText"

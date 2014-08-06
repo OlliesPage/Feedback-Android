@@ -7,14 +7,18 @@ import com.olliespage.Feedback.views.Watchers.BlockDeviceTextWatcher;
 import com.olliespage.Feedback.views.interfaces.SeekBarChangeEventHandler;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -22,7 +26,7 @@ import android.widget.TextView;
 
 // TODO: add comments to this file to tell others what the hell it's doing
 
-public class MainActivity extends FragmentActivity implements SeekBarChangeEventHandler, BlockDeviceTextWatcher.BlockDeviceChangedInterface, SelectModelDialogFragment.SelectModelDialogListener {
+public class MainActivity extends FragmentActivity implements SeekBarChangeEventHandler, BlockDeviceTextWatcher.BlockDeviceChangedInterface, SelectModelDialogFragment.SelectModelDialogListener, LimitView.LimitViewInterface, OnClickListener {
 	
 	private FeedbackModel sysModel;
 	public SeekBarStuff seeking = null;
@@ -86,6 +90,7 @@ public class MainActivity extends FragmentActivity implements SeekBarChangeEvent
 		// add the text for the decsription of the model to the descripText label
 		TextView descripText = (TextView) findViewById(R.id.descripText);
 		descripText.setText(jsonModel.modelDescription);
+        descripText.setMovementMethod(new ScrollingMovementMethod());
 
         // set the systemTypeText label to tell users the type of feedback system being modelled (positive or negative feedback)
 		TextView systemTypeText = (TextView) findViewById(R.id.systemTypeText);
@@ -163,28 +168,53 @@ public class MainActivity extends FragmentActivity implements SeekBarChangeEvent
 			
 			// loop through devices in js0nModel.blockDevices for current level
 			for(int i=0; i<currentLevelDevices.size(); i++) {
-				BlockDevice device = currentLevelDevices.get(i);
-				device.level = level;
-				View newBlockText;
-				// setup the textField for it
-                if(device.type == 1)
-                {
+                final BlockDevice device = currentLevelDevices.get(i);
+                device.level = level;
+                View newBlock;
+                // setup the textField for it
+                if (device.type == 1) {
                     limitBlock = new LimitView(getBaseContext());
-                    newBlockText = limitBlock;
-                    ((LimitView)newBlockText).setText(device.getDoubleValue().toString());
-                    newBlockText.setBackgroundResource(R.drawable.rounded_edittext);
+                    newBlock = limitBlock;
+                    ((LimitView) newBlock).setText(device.getDoubleValue().toString());
+                    ((LimitView) newBlock).setDevice(device);
+                    ((LimitView) newBlock).delegate = this;
+                    newBlock.setOnClickListener(new OnClickListener() {
+                        public void onClick(View view) {
+                            Log.v("LimitBlock Clicked", "The limit block was clicked");
+                            final LimitView cView = (LimitView) view;
+                            cView.setVisibility(View.INVISIBLE);
+                            cView.textBox.post(new Runnable() {
+                                public void run() {
+                                    cView.textBox.requestFocusFromTouch();
+                                    InputMethodManager lManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    lManager.showSoftInput(cView.textBox, 0);
+                                }
+                            });
+                        }
+                    });
+                    newBlock.setBackgroundResource(R.drawable.rounded_edittext);
+                } else if (device.type == 2)
+                {
+                    newBlock = new FeedbackModelBlockView(getBaseContext());
+                    ((FeedbackModelBlockView)newBlock).setDevice(device);
+                    newBlock.setOnClickListener(this);
                 } else {
-                    newBlockText = getLayoutInflater().inflate(R.layout.block_template, null);
-                    ((EditText)newBlockText).setText(device.getDoubleValue().toString());
-                    ((EditText)newBlockText).addTextChangedListener(new BlockDeviceTextWatcher(device, this));
+                    newBlock = getLayoutInflater().inflate(R.layout.block_template, null);
+                    ((EditText)newBlock).setText(device.getDoubleValue().toString());
+                    ((EditText)newBlock).addTextChangedListener(new BlockDeviceTextWatcher(device, this));
                 }
-                newBlockText.setId(baseId); // note this might not work
+                newBlock.setId(baseId); // note this might not work
 				
 				// setup parameters
-				params = new RelativeLayout.LayoutParams(device.type==1?Math.round(70*d):Math.round(50*d), device.type==1?Math.round(25*d):RelativeLayout.LayoutParams.WRAP_CONTENT);
+				params = new RelativeLayout.LayoutParams(device.type>0?Math.round(70*d):Math.round(50*d), Math.round(25*d));
 				if(level == 0) {
 					params.addRule(RelativeLayout.ALIGN_BOTTOM, R.id.baseLineView1);
-					params.setMargins((int)Math.round(padding), 0, 0, getResources().getDimensionPixelSize(R.dimen.block_marginBottom));
+                    if(i==0 && jsonModel.blockDevices.size() < 2)
+                    {
+                        params.setMargins((int) Math.round(padding+50*d), 0, 0, getResources().getDimensionPixelSize(R.dimen.block_marginBottom));
+                    } else {
+                        params.setMargins((int) Math.round(padding), 0, 0, getResources().getDimensionPixelSize(R.dimen.block_marginBottom));
+                    }
 				} else {
 					params.addRule(RelativeLayout.BELOW, R.id.baseLineView1);
 					params.addRule(RelativeLayout.ALIGN_LEFT, R.id.baseLineView1);
@@ -201,8 +231,12 @@ public class MainActivity extends FragmentActivity implements SeekBarChangeEvent
 					params.addRule(RelativeLayout.RIGHT_OF, (baseId-1));
 				}
 				
-				Log.e("Placing Devices", i+" devices placed on level "+ level);
-				rLayout.addView(newBlockText, params);
+				Log.v("Placing Devices", i+" devices placed on level "+ level);
+                if(device.type == 1)
+                {
+                    rLayout.addView(((LimitView)newBlock).textBox, params);
+                }
+				rLayout.addView(newBlock, params);
 				baseId++;
 			}
 			
@@ -250,6 +284,14 @@ public class MainActivity extends FragmentActivity implements SeekBarChangeEvent
 			}
 		}
 	}
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        if(sysModel != null)
+            sysModel.resetCache();
+    }
 
     @Override
     public void changeToSelectedModel(String name)
@@ -321,4 +363,35 @@ public class MainActivity extends FragmentActivity implements SeekBarChangeEvent
 		systemTypeText.setText("Type of feedback: "+ (sysModel.isFeedbackNegative()?"Negative":"Positive")); // set the label for the type of system
 		inputSliderChanged(inputSlider.getProgress()/100-10); // calculate the new output using the current input value
 	}
+
+    @Override
+    public void limitBlockValueChanged(BlockDevice device, double value)
+    {
+        newValueForBlockDevice(device, value);
+    }
+
+
+    public void onClick(View view) {
+        BlockDevice device = ((FeedbackModelBlockView)view).getDevice();
+        Intent intent = new Intent(this, EmbeddedModelActivity.class);
+        intent.putExtra("modelBlock", device);
+        startActivityForResult(intent, 0);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if(requestCode == 0)
+        {
+            // this is the return from an Embedded Model Activity
+            if(resultCode == RESULT_OK)
+            {
+                FeedbackModelBlockDevice tmp = (FeedbackModelBlockDevice)data.getSerializableExtra("modelBlock");
+                sysModel.updateBlockDeviceWithName(tmp.getName(), tmp.level, tmp);
+                FeedbackModelBlockDevice local = (FeedbackModelBlockDevice)sysModel.getBlockDeviceWithName(tmp.getName(), tmp.level);
+                Log.v("Main activity",local.getName()+" has been updated, resetting cache; values- tmp:"+tmp.getDoubleValue()+" local:"+local.getDoubleValue());
+                sysModel.resetCache();
+            }
+        }
+    }
 }

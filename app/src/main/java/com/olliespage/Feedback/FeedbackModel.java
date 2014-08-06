@@ -2,9 +2,11 @@ package com.olliespage.Feedback;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.io.Serializable;
 import java.lang.Math;
+import java.util.ListIterator;
 
 /**
  * <code>FeedbackModel</code>
@@ -52,6 +54,24 @@ public class FeedbackModel implements Serializable {
 		return this.limit;
 	}
 
+    /**
+     * Get the list of forward devices in the model
+     * @return <code>List<BlockDevice></code> - Immutable list of block devices
+     */
+    public List<BlockDevice> getForwardList()
+    {
+        return Collections.unmodifiableList(forwardList);
+    }
+
+    /**
+     * Get the list of loop devices in the model
+     * @return <code>List<BlockDevice></code> - Immutable list of block devices
+     */
+    public List<BlockDevice> getLoopList()
+    {
+        return Collections.unmodifiableList(loop);
+    }
+
 	/**
 	 * Sets the forward and loop lists directly to the lists provided
 	 * @param forwardDevices a list of devices for the forward system
@@ -97,7 +117,47 @@ public class FeedbackModel implements Serializable {
 			}
 		}
 	}
-	
+
+    /**
+     * Replace <code>BlockDevice</code> identified by <code>deviceName</code> and <code>level</code>
+     * with <code>BlockDevice nDevice</code>.
+     * @param deviceName the name of the device to change
+     * @param level locates the device inside the system
+     * @param nDevice the new <code>BlockDevice</code>
+     */
+    public void updateBlockDeviceWithName(String deviceName, int level, BlockDevice nDevice)
+    {
+        List<BlockDevice>pointer; // this might not work
+        if(level == 0) pointer = forwardList; else pointer = loop;
+        ListIterator<BlockDevice> listIterator = pointer.listIterator();
+        while(listIterator.hasNext())
+        {
+            BlockDevice current = listIterator.next();
+            if(current.getName().equals(deviceName))
+            {
+                listIterator.set(nDevice);
+            }
+        }
+    }
+
+    /**
+     * Gets a <code>BlockDevice</code> used in the model
+     * @param deviceName the name of the device to return
+     * @param level locates the device inside the system
+     * @return <code>BlockDevice</code> or null if not found
+     */
+    public BlockDevice getBlockDeviceWithName(String deviceName, int level)
+    {
+        List<BlockDevice>pointer; // this might not work
+        if(level == 0) pointer = forwardList; else pointer = loop;
+        for(BlockDevice current: pointer) {
+            if(current.getName().equals(deviceName)) {
+                return current; // that's the one (there must be a better way to do this)
+            }
+        }
+        return null;
+    }
+
 	/**
 	 * Resets the model by removing all blocks
 	 */
@@ -106,6 +166,10 @@ public class FeedbackModel implements Serializable {
 		this.loop.clear();
 		this.limit = this.forwardCache = this.loopCache = 0.0;
 	}
+
+    public void resetCache() {
+        this.forwardCache = this.loopCache = 0.0;
+    }
 
 	/**
 	 * Calculates the output of the system for the current input with a given disturbance
@@ -223,7 +287,7 @@ public class FeedbackModel implements Serializable {
 	    // this should not be run on the main thread
 	    for(BlockDevice next: this.forwardList)
 	    {
-	    	if(next.type == 0)
+	    	if(next.type != 1)
 	    		forward  *= next.getDoubleValue();
 	    }
 	    this.forwardCache = forward; // save the value to save processing next time
@@ -246,7 +310,7 @@ public class FeedbackModel implements Serializable {
 	    
 	    for(BlockDevice next: loop)
 	    {
-	    	if(next.type == 0)
+	    	if(next.type != 1)
 	    	{
 	    		oneMinusLoop *= next.getDoubleValue();
 	    	}

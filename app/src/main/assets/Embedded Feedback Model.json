@@ -1,0 +1,32 @@
+{
+    "name": "Embedded Feedback Model",
+    "model": [
+              {
+                "amplifier": {
+                    "block": 2
+                }
+              },
+              {
+                    "model": [
+                              {
+                                "controller": {
+                                    "block": 11
+                                }
+                              },
+                              {
+                                "device": {
+                                    "block": 9
+                                }
+                              },
+                              [
+                               {
+                                    "sensor": {
+                                        "block": -0.2
+                                    }
+                                }
+                               ]
+                    ]
+              }
+             ],
+    "description": "This model demonstrates the concept of an embedded feedback model. By clicking the model block you can alter the parameters of the embedded model.\n\nThis demonstrates how an entire system can be represented as a single block inside a larger system. By calculating the gain of the embedded system, a value for it's \"block\" is calculated and then it can be treated like a regular block."
+}
